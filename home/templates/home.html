@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Collabstr | Creators</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/explore.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/listing.css' %}">
+    <meta charset="UTF-8">
+    <style>
+        /* latin */
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 300;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+
+        /* latin */
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+
+        /* latin */
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 600;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+
+        /* latin */
+        @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: url(https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5nw.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+{% include 'partials/header.html' %}
+{% include 'partials/hero.html' %}
+<h1 class="content-title">Discover Top Influencer Content</h1>
+<div class="tabs">
+    <div class="tab tab-active" data-platform="All">All</div>
+    <div class="tab" data-platform="Instagram">Instagram</div>
+    <div class="tab" data-platform="TikTok">TikTok</div>
+    <div class="tab" data-platform="UserGeneratedContent">User Generated Content</div>
+</div>
+<div id="content">
+    {% include 'partials/content_list.html' %}
+</div>
+{% include 'partials/footer.html' %}
+</body>
+<script>
+    // FILE DOWNLOAD
+    function downloadFileContent(url) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = url.split('/').pop();
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // VIDEO HANDLING
+    function setupVideos() {
+        const videos = document.querySelectorAll('.video');
+        const toggleButtons = document.querySelectorAll('.toggleButton');
+
+        function togglePlay(event) {
+            const videoId = event.target.getAttribute('data-video-id');
+            const video = document.querySelector(`video[data-video-id="${videoId}"]`);
+
+            if (video.paused || video.ended) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+
+        function updateToggleButton(event) {
+            const videoId = event.target.getAttribute('data-video-id');
+            const button = document.querySelector(`.toggleButton[data-video-id="${videoId}"]`);
+
+            button.innerHTML = event.target.paused ? "►" : "❚❚";
+            //button.innerHTML = event.target.paused ? playButtonSVG : pauseButtonSVG;
+            button.style.fontSize = event.target.paused ? "18px" : "12px";
+        }
+
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', togglePlay);
+        });
+
+        videos.forEach(video => {
+            video.addEventListener('click', togglePlay);
+            video.addEventListener('play', updateToggleButton);
+            video.addEventListener('pause', updateToggleButton);
+        });
+    }
+
+    $(document).ready(function () {
+        setupVideos()
+        const PLATFORMS = {
+            "All": "all",
+            "Instagram": 1,
+            "TikTok": 2,
+            "UserGeneratedContent": 3,
+        }
+        // AJAX FILTERING
+        $('.tab').click(function () {
+            let platform = $(this).data('platform');
+            $('.tab').removeClass('tab-active');
+            $(this).addClass('tab-active');
+            $('.tab').show();
+            //
+            $('#content').html('<div class="loader-container"><div class="loader"></div></div>')
+            $.ajax({
+                url: '/filter-content/',
+                data: {
+                    'platform': PLATFORMS[platform]
+                },
+                success: function (data) {
+                    $('#content').html(data);
+                    setupVideos()
+                },
+                error: function (xhr, status, error) {
+                    $('#content').html('<p>Error loading content. Please try again later.</p>');
+                    console.error('Error loading content:', status, error);
+                }
+            });
+        });
+    })
+</script>
+</html>
